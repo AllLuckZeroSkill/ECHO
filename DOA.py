@@ -10,7 +10,7 @@ if dev:
     print (Mic_tuning.direction)
     while True:
         try:
-            print (Mic_tuning.direction)
+            print (Mic_tuning.direction) #Prints angle of direction of sound
             time.sleep(1)
         except KeyboardInterrupt:
             break

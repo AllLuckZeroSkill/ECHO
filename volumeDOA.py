@@ -1,3 +1,4 @@
+#DOA algo. by using volume
 import pyaudio
 import numpy as np
 

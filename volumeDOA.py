@@ -62,5 +62,10 @@ stream.close()
 p.terminate()
 
 
+<<<<<<< Updated upstream
 yoooooo
 my man
+=======
+#yoooo
+>>>>>>> Stashed changes
+#hello

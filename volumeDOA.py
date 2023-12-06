@@ -1,6 +1,10 @@
 import pyaudio
 import numpy as np
+<<<<<<< Updated upstream
 import keyboard  #new varaible
+=======
+import keyboard  # new variable
+>>>>>>> Stashed changes
 
 # Configuration
 RESPEAKER_RATE = 16000

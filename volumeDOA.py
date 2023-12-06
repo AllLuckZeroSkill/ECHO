@@ -1,35 +1,31 @@
-#DOA algo. by using volume
 import pyaudio
 import numpy as np
+<<<<<<< Updated upstream
+import keyboard  #new varaible
+=======
+import keyboard  # new variable
+>>>>>>> Stashed changes
 
 # Configuration
 RESPEAKER_RATE = 16000
-RESPEAKER_CHANNELS = 6  # 6 channels for Respeaker
+RESPEAKER_CHANNELS = 6
 RESPEAKER_WIDTH = 2
-RESPEAKER_INDEX = 2  # Replace with your device id
+RESPEAKER_INDEX = 2
 CHUNK = 1024
+volume_threshold = 1000  # initial volume threshold
 
-def estimate_doa(audio_data):
-    """
-    Estimates the direction of arrival by comparing the intensity of audio from each microphone on the Respeaker.
-    :param audio_data: A numpy array where each column represents audio data from one channel of the Respeaker.
-                       Channels 2 to 5 correspond to the four microphones.
-    :return: Index of the microphone with the highest intensity, corresponding to channels 2 to 5.
-    """
-    # Consider only channels 2 to 5 for the microphones
-    mic_channels = audio_data[:, 1:5]  # assuming channels are 0-indexed
-
-    # Calculate the intensity for each microphone's channel
+def estimate_doa(audio_data, threshold):
+    mic_channels = audio_data[:, 1:5]
     intensities = np.sum(np.abs(mic_channels), axis=0)
 
-    # Find the index of the microphone with the highest intensity
+    # Check if the highest intensity is above the threshold
+    if np.max(intensities) < threshold:
+        return None
     loudest_mic_index = np.argmax(intensities)
-
-    # Adjust the index to correspond to the actual microphone numbers (2 to 5)
-    return loudest_mic_index + 2  # +2 because we're starting from channel 2
+    return loudest_mic_index + 2
 
 # Initialize PyAudio
-p = pyaudio.PyAudio()
+p = pyaudio.PyAudio() #add backround noise here
 
 # Open stream
 stream = p.open(
@@ -45,13 +41,22 @@ print("* listening")
 
 try:
     while True:
-        # Read data from audio stream
+        # Adjust threshold with keyboard input
+        if keyboard.is_pressed('up'):
+            volume_threshold += 100
+            print(f"Volume threshold increased to: {volume_threshold}")
+        elif keyboard.is_pressed('down'):
+            volume_threshold -= 100
+            print(f"Volume threshold decreased to: {volume_threshold}")
+
         data = stream.read(CHUNK)
-        # Convert data to numpy array
         npdata = np.frombuffer(data, dtype=np.int16).reshape(-1, RESPEAKER_CHANNELS)
-        # Estimate DoA
-        mic_index = estimate_doa(npdata)
-        print(f"Direction of arrival: Microphone Channel {mic_index}")
+        mic_index = estimate_doa(npdata, volume_threshold)
+
+        if mic_index is not None:
+            print(f"Direction of arrival: Microphone Channel {mic_index}")
+        else:
+            print("Sound below threshold")
 
 except KeyboardInterrupt:
     print("* done listening")

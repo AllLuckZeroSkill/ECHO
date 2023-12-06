@@ -1,30 +1,47 @@
-#DOA algo. directly imported from Respeakers libraries
 from tuning import Tuning
 import usb.core
 import usb.util
-import time
 import numpy as np
 import matplotlib.pyplot as pyplot
+from gpiozero import PWMOutputDevice
+from time import sleep
 
+# Initialize GPIO for the motor
+motor = PWMOutputDevice(14)
+
+# USB device setup for microphone
 dev = usb.core.find(idVendor=0x2886, idProduct=0x0018)
 
 if dev:
     Mic_tuning = Tuning(dev)
-    print (Mic_tuning.direction)
+
+    # Initialize the plot
+    fig1 = pyplot.figure()
+    Polar_Graph = fig1.add_subplot(111, projection='polar')
+    Polar_Graph.set_rticks([1])  # Aesthetic radius ticks
+    Polar_Graph.set_title("Mic_tuning.direction Location", va='bottom')
+
     while True:
         try:
-            print (Mic_tuning.direction) #Prints angle of direction of sound
+            direction = Mic_tuning.direction
+            print(direction)  # Prints angle of direction of sound
             
-            #This Section Is For The Graph
-            theta = (float(Mic_tuning.direction)/180*np.pi) #Takes the Mic_tuning.direction and converts it to a usable theta value
-            radius = [1] #Radius is always 1 for visual aesthetics
-            fig1 = pyplot.figure()
-            Polar_Graph = fig1.add_subplot(111, projection='polar')
-            Polar_Graph.set_rticks([1])  # This Limits The Text On The Radius For Visual Aesthetics
-            Polar_Graph.scatter(theta,radius, c ='r') #Plots The Point
-            Polar_Graph.set_title("Mic_tuning.direction Location", va='bottom') #Adds Title Information
-            pyplot.show() #Shows the graph
+            # Vibrate motor based on direction
+            if direction > 90 and direction < 180:
+                motor.value = 1  # Turn on motor
+            else:
+                motor.value = 0  # Turn off motor
+        
+            # Clear the plot and redraw
+            Polar_Graph.clear()
+            Polar_Graph.set_rticks([1])
+            theta = float(direction) / 180 * np.pi
+            Polar_Graph.scatter([theta], [1], c='r')
+            Polar_Graph.set_title("Mic_tuning.direction Location", va='bottom')
+
+            pyplot.draw()
+            pyplot.pause(0.1)  # Adjust as necessary
             
-            time.sleep(1)
         except KeyboardInterrupt:
+            motor.value = 0  # Ensure motor is turned off when exiting
             break

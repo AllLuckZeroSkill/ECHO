@@ -5,9 +5,13 @@ import numpy as np
 import matplotlib.pyplot as pyplot
 from gpiozero import PWMOutputDevice
 from time import sleep
+from vibration import HapticMotorDriver as hap
 
 # Initialize GPIO for the motor
 motor = PWMOutputDevice(14)
+
+# Initialize the Haptic Motor Driver
+hap.init()
 
 # USB device setup for microphone
 dev = usb.core.find(idVendor=0x2886, idProduct=0x0018)
@@ -28,9 +32,9 @@ if dev:
             
             # Vibrate motor based on direction
             if direction > 90 and direction < 180:
-                motor.value = 1  # Turn on motor
+                hap.setvibrate(127) # Turn on motor at full power
             else:
-                motor.value = 0  # Turn off motor
+                hap.setvibrate(0) # Turn off motor
         
             # Clear the plot and redraw
             Polar_Graph.clear()

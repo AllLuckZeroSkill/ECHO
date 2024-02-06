@@ -33,6 +33,7 @@ if dev:
             # Vibrate motor based on direction
             if direction > 90 and direction < 180:
                 hap.setvibrate(127) # Turn on motor at full power
+                time.sleep(0.2)     # Sleeps for a moment to create a pulse effect
             else:
                 hap.setvibrate(0) # Turn off motor
         

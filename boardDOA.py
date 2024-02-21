@@ -5,13 +5,13 @@ import numpy as np
 import matplotlib.pyplot as pyplot
 from gpiozero import PWMOutputDevice
 from time import sleep
-from vibration import HapticMotorDriver as hap
+from i2c_hapticmotordriver import HapticMotorDriver as hap
 
 # Initialize GPIO for the motor
-motor = PWMOutputDevice(14)
+#motor = PWMOutputDevice(14)
 
 # Initialize the Haptic Motor Driver
-hap.init()
+hap_driver = HapticMotorDriver()  # Correctly instantiate the driver
 
 # USB device setup for microphone
 dev = usb.core.find(idVendor=0x2886, idProduct=0x0018)
@@ -31,15 +31,15 @@ if dev:
             print(direction)  # Prints angle of direction of sound
             
             # Vibrate motor based on direction
-            if direction > 90 and direction < 180:
-                hap.setvibrate(127) # Turn on motor at full power
+            if 90 < direction < 180:
+                hap_driver.set_vibration(127)  # Corrected method call
             else:
-                hap.setvibrate(0) # Turn off motor
+                hap_driver.set_vibration(0)  # Corrected method call
         
             # Clear the plot and redraw
             Polar_Graph.clear()
             Polar_Graph.set_rticks([1])
-            theta = float(direction) / 180 * np.pi
+            theta = np.radians(direction)  # More precise conversion
             Polar_Graph.scatter([theta], [1], c='r')
             Polar_Graph.set_title("Mic_tuning.direction Location", va='bottom')
 
@@ -47,5 +47,5 @@ if dev:
             pyplot.pause(0.1)  # Adjust as necessary
             
         except KeyboardInterrupt:
-            motor.value = 0  # Ensure motor is turned off when exiting
+          #  motor.value = 0  # Ensure motor is turned off when exiting
             break

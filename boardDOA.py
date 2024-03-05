@@ -6,6 +6,7 @@ import matplotlib.pyplot as pyplot
 from gpiozero import PWMOutputDevice
 from time import sleep
 from i2c_hapticmotordriver import HapticMotorDriver as hap
+import INA219
 
 # Initialize GPIO for the motor
 #motor = PWMOutputDevice(14)
@@ -15,6 +16,9 @@ hap_driver = HapticMotorDriver()  # Correctly instantiate the driver
 
 # USB device setup for microphone
 dev = usb.core.find(idVendor=0x2886, idProduct=0x0018)
+
+# Creates an INA219 instance to get battery data
+ina219 = INA219(addr=0x43)
 
 if dev:
     Mic_tuning = Tuning(dev)
@@ -45,6 +49,20 @@ if dev:
 
             pyplot.draw()
             pyplot.pause(0.1)  # Adjust as necessary
+
+            '''
+            # if phone application battery state button pressed: #pseudo code placeholder for the phone application input
+            bus_voltage = ina219.getBusVoltage_V()                   # voltage on V- (load side)
+            print("Load Voltage:  {:6.3f} V".format(bus_voltage))    # what it looks like to print the load voltage, width is 6, the precision is 3 decimals, f is for floating point
+            current = ina219.getCurrent_mA()                         # current in mA
+            print("Current:       {:6.3f} A".format(current/1000))   # what it looks like to print the current
+            power = ina219.getPower_W()                              # power in W
+            print("Power:         {:6.3f} W".format(power))          # printing the power
+            percent = (bus_voltage - 3)/1.2*100                      # battery percentage 
+            if(percent > 100):percent = 100                          # percent of battery can not be over 100%
+            if(percent < 0):percent = 0                              # percent of battery can not be under 0%
+            print("Percent:       {:3.1f}%".format(percent))
+            '''
             
         except KeyboardInterrupt:
           #  motor.value = 0  # Ensure motor is turned off when exiting

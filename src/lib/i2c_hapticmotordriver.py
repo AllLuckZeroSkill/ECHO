@@ -8,6 +8,14 @@ class HapticMotorDriver:
     TOP_CTL2 = 0x23
     TOP_CFG1 = 0x13
     DRO_MODE = 1
+    Multiplexer_Address = 0x70 #TC9A548A I2C Multiplexer Address
+
+    def TCA9548A(bus):
+        address = Multiplexer_Address #TC9A548A I2C Multiplexer Address
+        with smbus2.SMBus(bus) as bus:
+            bus.write_byte(address, 1 << bus) #Send byte to select bus which one to multiplex
+    
+    
 
     def __init__(self):
         self.bus = SMBus(1)  # 1 indicates /dev/i2c-1

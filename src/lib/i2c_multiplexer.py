@@ -1,11 +1,11 @@
-from tuning import Tuning
+#from tuning import Tuning
 import usb.core
 import usb.util
 import numpy as np
 import matplotlib.pyplot as pyplot
 from gpiozero import PWMOutputDevice
 from time import sleep
-from i2c_hapticmotordriver import HapticMotorDriver 
+#from i2c_hapticmotordriver import HapticMotorDriver 
 
 import smbus
 import time

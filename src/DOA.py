@@ -16,8 +16,8 @@ RESPEAKER_CHANNELS = 6
 RESPEAKER_WIDTH = 2
 RESPEAKER_INDEX = 2  # Audio device index
 CHUNK = 1024
-initial_volume_threshold = 20000  # Initial volume threshold to detect sound
-direction_count_threshold = 5  # Threshold for the number of times a direction can be the loudest before pausing
+initial_volume_threshold = 500000  # Initial volume threshold to detect sound
+direction_count_threshold = 20  # Threshold for the number of times a direction can be the loudest before pausing
 
 # Filter Design Parameters
 num_taps = 101  # Number of taps in the FIR filter
@@ -36,25 +36,26 @@ direction_counts = [0] * 6  # Array to keep track of direction loudness counts
 def activate_vibration_motors(motor_index, intensity, count):
     channel = motor_index + 2
     mux = TCA9548()
+    mux.select_channel(channel)
     hap = HapticMotorDriver()
-
+    
     try:
-        mux.select_channel(channel)
         print(f"Channel {channel} selected.")
-
         if count >= direction_count_threshold:
             print("Pausing vibration due to continuous high intensity in one direction.")
-            hap.init()
             hap.set_vibration(0)  # Stop the vibration
-            time.sleep(1)  # Pause for a duration to avoid motor wear and user discomfort
+            print("Vibration Powerrr is 0")
+            time.sleep(3)  # Pause for a duration to avoid motor wear and user discomfort
+            direction_counts[motor_index] = 0
         else:
             # Calculate scaled intensity based on the full range mapped to 0-127
-            scaled_intensity = int((intensity / 1000000) * 127)
-            vibrationPower = max(0, min(127, scaled_intensity))
-            hap.init() # Bring up to Mark
+            scaled_intensity = int((intensity / 1000000) * 100)
+            vibrationPower = max(0, min(100, scaled_intensity))
             hap.set_vibration(vibrationPower)
+            print(f"Vibration Power is {vibrationPower}")
             time.sleep(0.1)
             print(f"Motor on channel {channel} set to vibration power {vibrationPower}.")
+            
 
     except Exception as e:
         print(e)
@@ -89,11 +90,13 @@ def audio_stream_loop(volume_threshold):
             initial_intensities = np.sum(np.abs(npdata[:, 1:5]), axis=0)
 
             if np.max(initial_intensities) >= volume_threshold.get():
+                max_intensity = np.max(initial_intensities)
+                
                 direction = estimate_doa(npdata)
                 motor_index = int((direction + 30) // 60) % 6
                 direction_counts[motor_index] += 1
                 print(f"Direction of arrival: {direction} degrees, motor index: {motor_index+2}, count: {direction_counts[motor_index]}")
-                activate_vibration_motors(motor_index, initial_intensities, direction_counts[motor_index])
+                activate_vibration_motors(motor_index, max_intensity, direction_counts[motor_index])
     except KeyboardInterrupt:
         print("* done listening")
     finally:

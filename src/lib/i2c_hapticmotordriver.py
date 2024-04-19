@@ -22,7 +22,11 @@ class HapticMotorDriver:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def close(self):
         self.bus.close()
+        
 
     def _read_register(self, register):
         return self.bus.read_byte_data(self.DEVICE_ADDRESS, register)
@@ -49,4 +53,6 @@ class HapticMotorDriver:
     def set_vibration(self, intensity):
         intensity = max(0, min(intensity, 255))  # Ensure intensity is within bounds
         self._write_register(self.TOP_CTL2, intensity)
-        print(f"Vibration intensity set to {intensity}.")
+        #print(f"Vibration intensity set to {intensity}.")
+
+    # Additional methods as needed

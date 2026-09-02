@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@react-native-community/slider": "4.4.2",
-    "expo": "^49.0.23",
+    "expo": "^57.0.19",
     "expo-status-bar": "~1.6.0",
     "react": "18.2.0",
     "react-native": "0.72.10"
